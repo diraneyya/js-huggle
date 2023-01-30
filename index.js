@@ -81,7 +81,7 @@ Object.defineProperty(this, 'gameState', {
         hasArrays = false
     ) {
         const objectArchive = {
-            name: "John Doe",
+            name: "John Doe", 
             age: 35,
             isMarried: true,
             dateOfBirth: new Date(1985, 8, 4),
@@ -596,6 +596,16 @@ Orwa is incredibly impressed by you!!!
         localStorage.setItem('level', ++gameState.level)
         setTimeout(refresh, gameState.transitionTime);
     }
+
+    function prevLevel() {
+        localStorage.setItem('level', --gameState.level)
+        refresh();
+    }
+
+    function nextLevel() {
+        localStorage.setItem('level', ++gameState.level)
+        refresh();
+    }
     
     function init() {
         this.gameState = {
@@ -629,6 +639,11 @@ Orwa is incredibly impressed by you!!!
             set: undefined,
         });
         
+        document.querySelector('#nextLevel')
+            .addEventListener('click', nextLevel);
+        document.querySelector('#prevLevel')
+            .addEventListener('click', prevLevel);
+
         refresh();
     }
     
