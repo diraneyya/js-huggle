@@ -72,60 +72,365 @@ Object.defineProperty(this, 'gameState', {
         return '';
     }
 
-    function randomIdentifier(hasAdjective = Math.random() > 0.5, hasNoun = Math.random() > 0.5) {
-        const animals = ["Alligator", "Alpaca", "Ant", "Anteater", "Ape", "Baboon", "Badger", "Beaver", "Bee", "Buffalo", "Butterfly", "Camel", "Cheetah", "Chicken", "Chimpanzee", "Chinchilla", "Cockroach", "Crab", "Dinosaur", "Dog", "Dogfish", "Dolphin", "Elephant", "Gazelle", "Giraffe", "Goat", "Goldfish", "Goose", "Gorilla", "Grasshopper", "Hamster", "Hedgehog", "Herring", "Hippopotamus", "Hornet", "Horse", "Human", "Hummingbird", "Jellyfish", "Kangaroo", "Koala", "Llama", "Lobster", "Mole", "Mongoose", "Monkey", "Moose", "Mosquito", "Mouse", "Mule", "Octopus", "Ostrich", "Oyster", "Parrot", "Penguin", "Pig", "Pigeon", "Pony", "Raccoon", "Rhino", "Sardine", "Scorpion", "Seahorse", "Seal", "Shark", "Snail", "Snake", "Spider", "Squirrel", "Termite", "Toad", "Trout", "Turkey", "Turtle", "Wasp", "Weasel", "Whale", "Wildcat", "Wolf", "Woodpecker", "Worm", "Zebra"];
-
-        const adjectives = ["adorable", "alluring", "angelic", "appealing", "beautiful", "blissful", "blooming", "bright", "cheerful", "charming", "classy", "cuddly", "delightful", "divine", "elegant", "enchanting", "enticing", "exquisite", "fabulous", "fantastic", "fine", "foxy", "funny", "glamorous", "gleaming", "glorious", "gorgeous", "graceful", "grand", "handsome", "happy", "honest", "huggy", "lovely", "nice", "pleasant", "pretty", "pure", "radiant", "refined", "romantic", "satisfying", "seductive", "serene", "shining", "smart", "splendid", "stunning", "sublime", "super", "sweet", "tasteful", "thrilling", "tidy", "unreal", "vibrant", "warm", "winning", "wonderful", "wondrous", "zealous", "amazing", "attractive", "awesome", "beautiful", "blessed", "brave", "breezy", "bubbly", "calm", "carefree", "caring", "cute", "dandy", "dazzling", "delicate", "divine", "dynamic", "eager", "energetic", "enjoyable", "enthusiastic", "fanciful", "friendly", "fun", "generous", "genuine", "gracious", "harmonious", "helpful", "hilarious", "jolly", "joyful", "lively", "loveable", "lovely", "lucky", "merry", "nifty", "peaceful", "playful", "poised", "positive", "relaxed", "romantic", "sassy", "serene", "sharp", "silky", "smiling", "smooth", "sparkling", "spirited", "strong", "stylish", "talented"];
-
-        function random(array, capitalize = false) {
-            let random = array[
-                Math.floor(Math.random() * array.length)
-            ].toLowerCase();
-
-            if (capitalize === true)
-                random = random[0].toUpperCase() + random.slice(1);
-
-            return random;
+    function createRandomObject(
+        numAttributes,
+        hasStrings = true,
+        hasNumbers = true,
+        hasDates = true,
+        hasBooleans = true,
+        hasArrays = false
+    ) {
+        const objectArchive = {
+            name: "John Doe",
+            age: 35,
+            isMarried: true,
+            dateOfBirth: new Date(1985, 8, 4),
+            hobbies: ["photography", "fishing", "drawing"],
+            favoriteMovies: [
+                "The Godfather",
+                "The Lord of the Rings",
+                "Good Will Hunting",
+            ],
+            favoriteFood: "pizza",
+            numSiblings: 0,
+            isStudent: false,
+            occupation: "software engineer",
+            salary: 85000,
+            hasCar: true,
+            catsOwned: 2,
+            isOrganized: false,
+            isAthlete: true,
+            isBusy: true,
+            isActive: false,
+            yearsInSchool: 5,
+            isHappy: true,
+            isCreative: true,
+            isCheerful: false,
+            isChatty: false,
+            numYearsEmployed: 10,
+            isGoodAtMath: true,
+            isIntroverted: false,
+            dreams: ["become a doctor", "start a business", "travel the world"],
+            isFlexible: true,
+            isReliable: false,
+            isTrustworthy: true,
+            isLoyal: true,
+            isHonest: true,
+            isCaring: false,
+            isCurious: true,
+            numVacationsTaken: 3,
+            numCountriesVisited: 7,
+            isRespectful: false,
+            isHelpful: true,
+            isPatient: false,
+            isEnergetic: true,
+            isOutgoing: false,
+            isTidy: true,
+            isCalm: false,
+            isForgetful: true,
+            isIndependent: false,
+            isPunctual: true,
+            isMeticulous: false,
+            isResourceful: true,
+            isMethodical: false,
+            numFriends: 5,
+            numPets: 0,
+            isLazy: true,
+            isDisciplined: false,
+            isOrganized: true,
+            hasPlans: true,
+            isWise: false,
+            isRash: true,
+            isLikable: false,
+            isSensitive: true,
+            isHumorous: false,
+            isOptimistic: true,
+            isGenerous: false,
+            isPassionate: true,
+            isAmbitious: false,
+            isAdventurous: true,
+            isSociable: false,
+            isSilly: true,
+            isHonest: false,
+            isMotivated: true,
+            isDiligent: false,
+            isGrateful: true,
+            isResilient: false,
+            isInquisitive: true,
+            isPractical: false,
+            isInnovative: true,
+            isFunny: false,
+            isRelaxed: true,
+            isAdventurous: false,
+            isCurious: true,
+            isImpulsive: false,
+            isTactful: true,
+            isUnderstanding: false,
+            isResponsible: true,
+            isDependable: false,
+            isFocused: true,
+            isSympathetic: false,
+            isKind: true,
+            isIndustrious: false,
+            isEmotional: true,
+            isCourageous: false,
+            isPerceptive: true,
+            isAnalytical: false,
+            isThoughtful: true,
+            isEmpathetic: false,
+            isBold: true,
+            isImaginative: false,
+            isAssertive: true,
+            isEnthusiastic: false,
+            isOpenminded: true,
+            isDetailoriented: false,
+            isFriendly: true,
+            username: "johndoe",
+            password: "MySecretPassword",
+            hashedPassword: "7f33b509a7848d0fe8f8e",
+            registeredOn: new Date(2020, 2, 1),
+            lastLoggedIn: new Date(2020, 5, 12),
+            numLikes: 58,
+            creditCardNumber: "1234-5678-9876-5432",
+            dateOfBirth: new Date(1988, 6, 11),
+            passportNumber: "ABC1234567",
+            coordinates: [45.6789, -98.7654],
+            favoriteColor: "#ff0000",
+            numFollowers: 745,
+            numTweets: 563,
+            numPoints: 83,
+            numShares: 28,
+            numFriends: 33,
+            numFavorites: 14,
+            numRetweets: 12,
+            numComments: 64,
+            numLikesReceived: 28,
+            numViews: 456,
+            numVotes: 78,
+            numVideos: 32,
+            numVotesReceived: 22,
+            numLists: 9,
+            numParticipants: 6,
+            numRounds: 8,
+            numQuestions: 15,
+            numPages: 10,
+            numAnswers: 4,
+            numUsers: 12,
+            numJobs: 5,
+            numEmployees: 20,
+            numProjects: 8,
+            numClients: 11,
+            numTasks: 10,
+            numTickets: 3,
+            numItems: 6,
+            numTasksCompleted: 4,
+            numWeeks: 10,
+            numYears: 4,
+            numMonths: 8,
+            numDays: 30,
+            numHours: 24,
+            numMinutes: 60,
+            numSeconds: 60,
+            numSharesReceived: 33,
+            numProductsSold: 12,
+            numLanguagesSpoken: 5,
+            numCountriesVisited: 5,
+            numCitiesVisited: 9,
+            numPeopleMet: 7,
+            numTripsTaken: 4,
+            numMilesTraveled: 876,
+            numBooksRead: 10,
+            numArticlesWritten: 5,
+            numMoviesWatched: 8,
+            numGamesPlayed: 6,
+            numAwardsWon: 2,
+            numEventsAttended: 15,
+            numPhotosTaken: 12,
+            numVideosRecorded: 5,
+            numPodcastsSubscribed: 7,
+            numPodcastsListened: 10,
+            numWebinarsAttended: 8,
+            numConferencesAttended: 3,
+            numCoursesCompleted: 6,
+            numCertificationsEarned: 4,
+            numPresentationsGiven: 5,
+            numWorkshopsAttended: 7,
+            numNetworksJoined: 9,
+            numGroupsJoined: 3,
+            numStartupsLaunched: 1,
+            numPartnershipsFormed: 2,
+            numFundsRaised: 4,
+            numInvestors: 5,
+            numDealsClosed: 6,
+            numPitchesMade: 8,
+            numProductsLaunched: 10,
+            numPatentsFiled: 3,
+            numCollaborations: 4,
+            numWebsitesCreated: 6,
+            numBlogsWritten: 7,
+            numVideosPublished: 5,
+            numWebinarsHosted: 3,
+            numPodcastsHosted: 4,
+            numEventsOrganized: 6,
+            numProjectsCompleted: 8,
+            numClientsServed: 10,
+            numContractsSigned: 3,
+            numGoalsAchieved: 4,
+            numGrantsReceived: 6,
+            numMentorsMentored: 7,
+            numVolunteerHours: 8,
+            numArticlesPublished: 5,
+            numPublications: 4,
+            numTalksDelivered: 6,
+            numGrantsAwarded: 7,
+            numGoalsSet: 8,
+            numObjectivesAccomplished: 10,
+            shape: "square",
+            color: "blue",
+            size: "small",
+            type: "circle",
+            style: "modern",
+            length: "long",
+            width: "narrow",
+            material: "wood",
+            pattern: "striped",
+            orientation: "vertical",
+            direction: "west",
+            location: "northwest",
+            operator: "+",
+            operation: "addition",
+            position: "center",
+            alignment: "left",
+            format: "PDF",
+            encoding: "UTF-8",
+            category: "electronics",
+            class: "A",
+            level: "expert",
+            status: "active",
+            source: "web",
+            mode: "manual",
+            protocol: "HTTP",
+            typeface: "Arial",
+            fontSize: "16pt",
+            fontWeight: "bold",
+            fontStyle: "italic",
+            language: "English",
+            currency: "USD",
+            unit: "metric",
+            timezone: "GMT",
+            method: "POST",
+            methodName: "addUser",
+            formatType: "JSON",
+            formatVersion: "1.0",
+            encryptionType: "AES",
+            encryptionVersion: "2.0",
+            paymentType: "credit card",
+            paymentMethod: "PayPal",
+            paymentStatus: "pending",
+            paymentDate: new Date(2020, 6, 1),
+            paymentAmount: 45.0,
+            paymentCurrency: "EUR",
+            paymentReference: "123456789",
+            paymentProvider: "Visa",
+            authorizationCode: "ABCDEF",
+            authorizationDate: new Date(2020, 7, 4),
+            authorizationStatus: "approved",
+            authorizationType: "online",
+            authorizationProvider: "MasterCard",
+            authorizationReference: "987654321",
+            authenticationType: "password",
+            authenticationMethod: "2FA",
+            authenticationStatus: "verified",
+            authenticationProvider: "Google",
+            authenticationReference: "87654321",
+            authenticationDate: new Date(2020, 8, 1),
+            verificationType: "email",
+            verificationMethod: "SMS",
+            verificationStatus: "pending",
+            verificationProvider: "Twitter",
+            verificationReference: "456789123",
+            verificationDate: new Date(2020, 9, 4),
+            validationType: "captcha",
+            validationMethod: "OTP",
+            validationStatus: "invalid",
+            validationProvider: "Facebook",
+            validationReference: "0987654321",
+            validationDate: new Date(2020, 10, 1),
+            sessionType: "user",
+            sessionStatus: "active",
+            sessionProvider: "LinkedIn",
+            sessionReference: "567891234",
+            sessionDate: new Date(2020, 11, 4),
+            ruleType: "access",
+            ruleStatus: "enabled",
+            ruleProvider: "Amazon",
+            ruleReference: "ABCDEFG",
+            ruleDate: new Date(2020, 12, 1),
+            policyType: "privacy",
+            policyStatus: "enforced",
+            policyProvider: "Apple",
+            policyReference: "HIJKLMNOP",
+            policyDate: new Date(2021, 1, 4),
+            algorithmType: "encryption",
+            algorithmStatus: "enabled",
+            algorithmProvider: "Microsoft",
+            algorithmReference: "QRSTUVWXYZ",
+            algorithmDate: new Date(2021, 2, 1),
+            encryptionType: "AES-256",
+            encryptionStatus: "verified",
+            encryptionProvider: "IBM",
+            encryptionReference: "1234567890",
+            encryptionDate: new Date(2021, 3, 4),
+            protocolType: "network",
+            protocolStatus: "secure",
+            protocolProvider: "Oracle",
+            protocolReference: "0987654321",
+        };
+    
+        propertiesSortedByName = Object.entries(objectArchive).sort((a, b) =>
+            a[0] > b[0] ? 1 : a[0] == b[0] ? 0 : -1
+        );
+    
+        function getPropertiesOfType(type = "object", constructor) {
+            return propertiesSortedByName.filter((pair) => {
+                let condition = false;
+                if (typeof type === "string" && type !== "object")
+                    condition ||= typeof pair[1] === type;
+                if (typeof constructor === "function")
+                    condition ||=
+                        typeof pair[1] === "object" &&
+                        pair[1] instanceof constructor;
+    
+                return condition;
+            });
         }
-        
-        if (hasAdjective && hasNoun)
-            return random(adjectives) + random(animals, true);
-        else if (hasAdjective)
-            return random(adjectives);
-        else
-            return random(animals);
-    }
-
-    // Written by GPT-3, not ashamed.
-    // difficultyFactor can be 1, 2, ... 10
-    function randomValue(difficultyFactor = 1) {
-        let randomNumber = Math.random();
-        if (randomNumber < 0.4 / difficultyFactor) {
-            return null;
-        } else if (randomNumber < 0.4 / difficultyFactor) {
-            return Math.random() >= 0.5 ? true : false;
-        } else if (randomNumber < 0.5) {
-            let randomString = '';
-            let loremIpsumWords = ['Lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore' ];
-            let numWords = Math.floor(Math.random() * (difficultyFactor - 1) * 2) + difficultyFactor;
-            for (let i = 0; i < numWords; i++) {
-                randomString += loremIpsumWords[Math.floor(Math.random() * loremIpsumWords.length)] + ' ';
-            }
-            return randomString.trim();
-        } else {
-            let randomNumber = Math.floor(Math.random() * (Math.pow(2, 1 + difficultyFactor) - 1) - Math.pow(2, 1 + difficultyFactor));
-            return randomNumber;
+    
+        boolProperties = getPropertiesOfType("boolean", Boolean);
+        stringProperties = getPropertiesOfType("string", String);
+        dateProperties = getPropertiesOfType("object", Date);
+        numericProperties = getPropertiesOfType("number", Number);
+        arrayProperties = getPropertiesOfType("object", Array);
+    
+        Array.prototype.random = function () {
+            return this[Math.floor(Math.random() * this.length)];
+        };
+    
+        function getRandomProperty() {
+            properties = [];
+            if (hasStrings) properties.push(stringProperties);
+            if (hasNumbers) properties.push(numericProperties);
+            if (hasDates) properties.push(dateProperties);
+            if (hasBooleans) properties.push(boolProperties);
+            if (hasArrays) properties.push(arrayProperties);
+    
+            return properties.random().random();
         }
-    }
-
-    function randomObject() {
+    
         const object = {};
-        const length = Math.random() * 10;
-        
-        for (let i = 0; i < length; ++i) {
-            object[randomIdentifier()] = randomValue()
+        for (let i = 0; i < numAttributes; ++i) {
+            const property = getRandomProperty();
+            object[property[0]] = property[1];
         }
-
         return object;
     }
 
@@ -218,7 +523,9 @@ and the property's name will somehow make it clear that
 it is the one you need to access to pass this level 🤭
             `,
             function (solve) {
-                this.object = randomObject();
+                this.object = createRandomObject(
+                    2 + Math.round(Math.random())
+                );
                 createAccessIdentifier(
                     solve, this.object, 'accessMe');
                 return () => { delete this.object; };
