@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Game</title>
+    <script src="index.js" defer></script>
+    <style>
+        .consoleTitle {
+            font-style: italic;
+        }
+        .consoleText {
+            text-decoration: underline dotted;
+            text-decoration-color: palevioletred;
+        }
+    </style>
+</head>
+<body>
+    <template id="level">
+        <h1 id="field"></h1>
+        <p id="field"></p>
+        <button>Previous</button>
+        <button>Next</button>
+    </template>
+    <template id="transition">
+        <h1>Wow! You did it! 💪</h1>
+        <p>Very good. You have managed to do this one.</p>
+        <p>Let's go to the next!</p>
+    </template>
+
+    <div id="application"></div>
+</html>
