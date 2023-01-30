@@ -454,10 +454,7 @@ Object.defineProperty(this, 'gameState', {
         Object.defineProperty(mount, identifier, {
             configurable: true,
             enumerable: true,
-            get: () => { 
-                solve();
-                return currentValue; 
-            },
+            get: undefined,
             set: value => { 
                 if (testCallback(value) === true)
                     solve(); 
@@ -552,6 +549,7 @@ Orwa is incredibly impressed by you!!!
             }
     
         ];
+
         const nodeLevel = gameState.templateLevel.content.cloneNode(true);
         const nodeFields = nodeLevel.querySelectorAll('#field');
         const funcLevel = data[data.length - 1];
@@ -563,9 +561,15 @@ Orwa is incredibly impressed by you!!!
         gameState.nodeApp.textContent = '';
         gameState.nodeApp.append(nodeLevel);
 
-        if (typeof funcLevel === 'function')
+        if (typeof gameState.cleanup === 'function')
+            gameState.cleanup();
+        else if (gameState.started === true)
+            console.error('ERROR: Invalid level cleanup function.')
+
+        if (typeof funcLevel === 'function') {
+            gameState.started = true;
             gameState.cleanup = funcLevel(solve);
-        else
+        } else
             console.error('ERROR: Invalid level setup function.')
 
         console.clear();
@@ -585,11 +589,6 @@ Orwa is incredibly impressed by you!!!
     }
     
     function solve() {
-        if (typeof gameState.cleanup === 'function')
-            gameState.cleanup();
-        else
-            console.error('ERROR: Invalid level cleanup function.')
-
         showTransition();
     
         // Increment level number and refresh view in a few seconds.
@@ -624,7 +623,7 @@ Orwa is incredibly impressed by you!!!
             let storedLevel = localStorage.getItem('level');
             if (typeof storedLevel === 'string' &&
                 /^[0-9]+$/.test(storedLevel))
-                storegameState.level = parseInt(storedLevel);
+                gameState.level = parseInt(storedLevel);
         }
         
         gameState.level = gameState.level ?? 0;
