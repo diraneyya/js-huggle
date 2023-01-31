@@ -4,8 +4,21 @@ Object.defineProperty(this, 'gameState', {
     writable: true,
 });
 
-(() => {
+Array.prototype.random = function () {
+    return this[Math.floor(Math.random() * this.length)];
+};
 
+String.prototype.capitalize = function () {
+    return this[0].toUpperCase() + this.slice(1);
+};
+
+Object.prototype.toMarkdown = function (hint) {
+    return Object.keys(this)
+        .map(s => `- \`${s}\``).join('\n');
+};
+
+(() => {
+    const markdownConverter = new showdown.Converter()
     const skills = localStorage.getItem('skills') ?? {};
 
     function parseURL(url) {
@@ -411,10 +424,6 @@ Object.defineProperty(this, 'gameState', {
         numericProperties = getPropertiesOfType("number", Number);
         arrayProperties = getPropertiesOfType("object", Array);
     
-        Array.prototype.random = function () {
-            return this[Math.floor(Math.random() * this.length)];
-        };
-    
         function getRandomProperty() {
             properties = [];
             if (hasStrings) properties.push(stringProperties);
@@ -434,40 +443,174 @@ Object.defineProperty(this, 'gameState', {
         return object;
     }
 
+    function randomIdentifier(hasAdjective = false, hasNoun = true) {
+        const nouns = ["Alligator", "Alpaca", "Ant", "Anteater", "Ape", "Baboon", "Badger", "Beaver", "Bee", "Buffalo", "Butterfly", "Camel", "Cheetah", "Chicken", "Chimpanzee", "Chinchilla", "Cockroach", "Crab", "Dinosaur", "Dog", "Dogfish", "Dolphin", "Elephant", "Gazelle", "Giraffe", "Goat", "Goldfish", "Goose", "Gorilla", "Grasshopper", "Hamster", "Hedgehog", "Herring", "Hippopotamus", "Hornet", "Horse", "Human", "Hummingbird", "Jellyfish", "Kangaroo", "Koala", "Llama", "Lobster", "Mole", "Mongoose", "Monkey", "Moose", "Mosquito", "Mouse", "Mule", "Octopus", "Ostrich", "Oyster", "Parrot", "Penguin", "Pig", "Pigeon", "Pony", "Raccoon", "Rhino", "Sardine", "Scorpion", "Seahorse", "Seal", "Shark", "Snail", "Snake", "Spider", "Squirrel", "Termite", "Toad", "Trout", "Turkey", "Turtle", "Wasp", "Weasel", "Whale", "Wildcat", "Wolf", "Woodpecker", "Worm", "Zebra"];
+        const adjectives = ["adorable", "alluring", "angelic", "appealing", "beautiful", "blissful", "blooming", "bright", "cheerful", "charming", "classy", "cuddly", "delightful", "divine", "elegant", "enchanting", "enticing", "exquisite", "fabulous", "fantastic", "fine", "foxy", "funny", "glamorous", "gleaming", "glorious", "gorgeous", "graceful", "grand", "handsome", "happy", "honest", "huggy", "lovely", "nice", "pleasant", "pretty", "pure", "radiant", "refined", "romantic", "satisfying", "seductive", "serene", "shining", "smart", "splendid", "stunning", "sublime", "super", "sweet", "tasteful", "thrilling", "tidy", "unreal", "vibrant", "warm", "winning", "wonderful", "wondrous", "zealous", "amazing", "attractive", "awesome", "beautiful", "blessed", "brave", "breezy", "bubbly", "calm", "carefree", "caring", "cute", "dandy", "dazzling", "delicate", "divine", "dynamic", "eager", "energetic", "enjoyable", "enthusiastic", "fanciful", "friendly", "fun", "generous", "genuine", "gracious", "harmonious", "helpful", "hilarious", "jolly", "joyful", "lively", "loveable", "lovely", "lucky", "merry", "nifty", "peaceful", "playful", "poised", "positive", "relaxed", "romantic", "sassy", "serene", "sharp", "silky", "smiling", "smooth", "sparkling", "spirited", "strong", "stylish", "talented"];
+        
+        let adjective = '', noun = '';
+        if (hasAdjective)
+            adjective = adjectives.random().toLowerCase();
+        if (hasNoun)
+            noun = nouns.random().toLowerCase();
+        
+        return adjective + (adjective.length > 0 ? 
+            noun.capitalize() : noun);
+    }
+
+    function retrieveCallStack() {
+        return Array.from((new Error().stack)
+            .matchAll(/^[ \t]+at[ \t]+([^ :]+)/mg))
+            .map(match => match[1]).slice(1);
+    }
+
+    function messageHelper(callstack) {
+        // call stack from the method needing the message
+        const callStackHere = retrieveCallStack().slice(1);
+        // the parameter callstack is the call stack from
+        // the closured context of the creation method
+
+        const messageArchive = [
+            {
+                creationPrefix: [
+                    'createAccessIdentifier',
+                    'createAccessChain'
+                ],
+                caller: ['get', 'set'],
+                message: 'You found the variable pointed to by another!',
+            },
+            {
+                creationPrefix: [
+                    'createAccessIdentifier',
+                ],
+                caller: ['get', 'set', 'Object.get', 'Object.set'],
+                message: [
+                    'You read the variable!',
+                    'You updated the variable!',
+                    'You read the variable that\'s residing inside of an object!',
+                    'You updated the variable that\'s residing inside of an object!',
+                ]
+            },
+            {
+                creationPrefix: [
+                    'createAssignmentIdentifier',
+                ],
+                caller: ['get'],
+                message: 'You need to update the value of this variable, not just access it.',
+            },
+        ];
+        
+        function prefixScore(prefix, array) {
+            let i;
+            for (i = 0; i < prefix.length; ++i)
+                if (prefix[i] && prefix[i] !== array[i])
+                    break;
+        
+            return i;
+        }
+        
+        function longestPrefix(prefix, array, property) {
+            let maxScore = 0, match = null;
+            array = array.sort((a, b) =>
+                a[property].length - b[property].length
+            );
+            for (element of array) {
+                const score = prefixScore(prefix, element[property]);
+                if (score > maxScore) {
+                    maxScore = score;
+                    match = element;
+                }
+                    
+            }
+            return match;
+        }
+
+        const creationStackMatch = longestPrefix(
+            callstack, messageArchive, 'creationPrefix');
+        
+        let indexOfCaller = creationStackMatch?.caller &&
+            creationStackMatch.caller.indexOf(callStackHere[0]);
+        if (indexOfCaller > -1) {
+            const data = creationStackMatch.message;
+            const isArray = Array.isArray(data);
+            return isArray ? data[indexOfCaller] : data;
+        } else
+            return `messageHelper: message needed for \
+                    "${callStackHere[0]}/${callstack}"`;
+    }
+
     function createAccessIdentifier(solve, mount, identifier) {
+        const callStack = retrieveCallStack();
+
         Object.defineProperty(mount, identifier, {
             configurable: true,
             enumerable: true,
             get: () => { 
                 solve(); 
-                return "You read the variable!"; 
+                return messageHelper(callStack);
             },
             set: value => { 
                 solve(); 
-                return "You updated the variable!";
+                return messageHelper(callStack);
             },
         });
     }
 
-    function createAssignmentIdentifier(solve, mount, identifier, initialValue, testCallback) {
+    function* messageAlternator(array) {
+        for (let i = 0; ; i = (i + 1) % array.length)
+            yield array[i];
+    }
+
+    function createAssignmentIdentifier(solve, mount, identifier, initialValue, testCallback, messages) {
+        const callstack = retrieveCallStack();
         let currentValue = initialValue;
+        const messageIterator = messageAlternator([
+            "Hmmm, is this what you are asked to put in me?",
+            ...messages
+        ]);
         Object.defineProperty(mount, identifier, {
             configurable: true,
             enumerable: true,
-            get: undefined,
+            get: () => messageHelper(callstack),
             set: value => { 
                 if (testCallback(value) === true)
                     solve(); 
                 else
-                    console.warn("Hmmm, is this what you are asked to put in me?")
+                    console.warn(messageIterator.next().value);
                 return value;
             },
         });
     }
 
+    function createAccessChain(solve, mount, identifiers) {
+        let numAccesses = 0;
+        let i;
+        for (i = 0; i < identifiers.length - 1; ++i) {
+            const pointsTo = identifiers[i + 1];
+            const redirectionCount = i;
+            Object.defineProperty(this, identifiers[i], {
+                configurable: true,
+                enumerable: true,
+                set: undefined,
+                get: function () {
+                    if (numAccesses === redirectionCount) {
+                        numAccesses = redirectionCount + 1;
+                        nextLevelStep();
+                    }
+                    return pointsTo;
+                }
+            });
+        }
+
+        createAccessIdentifier(solve, mount, identifiers[i]);
+        return () => {
+            for (identifier of identifiers)
+                delete mount[identifier];
+        };
+    }
+
     const levelData = [
         [
-            `
+            function* () { return `
 Welcome to JS huggle, a game created by Orwa to help you
 venture into JavaScript as a your first, general-purpose
 logical language (also known as a programming language).  
@@ -480,49 +623,85 @@ access a JavaScript identifier (a variable) named
 By accessing the variable, we mean reading its value, or
 writing to it, either one of the two will allow you to 
 pass this level and move to the next one.
-            `,
+            ` },
             function (solve) {
                 createAccessIdentifier(solve, this, 'variable');
                 return () => { delete this.variable; };
             }
         ],
         [
-            `
-Good, now we will try something different.
+            function* () { return `
+Good, now we will try something different.  
 
 Now I want you to update the value of "variable" with a
-very specific value.
+very specific value.  
 
 I would like this value to be a string containing the
-word "fun".
+word "fun".  
 
 I look forward to seeing you on the other side 😎.
-            `,
+            ` },
             function (solve) {
                 createAssignmentIdentifier(
                     solve, this, 'variable', 
-                    '', value => /fun/i.test(value));
+                    '', value => /fun/i.test(value),
+                    [
+                        "Remember, anything that contains 'fun' should work",
+                        "'fun' as in 'Eff' 'Yuu' 'Enn', no spaces in-between...",
+                        `Try "variable = 'I am having fun'" 😉`,
+                    ]);
                 return () => { delete this.variable; };
             }
         ],
         [
-            `
-Okay, this is going well.
+            function* () { return `
+Let's spice things up a little bit for you 🌶  
+
+Instead of just accessing a variable of a known name, such
+as "variable", we want you to work a little harder.  
+
+Namely, we want you to look inside of "variable", to find
+the name of the actual variable that we want you to access
+in order to pass this level.
+            `; }, function* () { return `
+Nice! now you know the name of the variable, which you
+need to access in order to pass this level 😉
+            `; },
+            function (solve) {
+                const cleanup = createAccessChain(
+                    solve, this, ['variable', randomIdentifier()]);
+                return () => { cleanup(); };
+            }
+        ],
+        [
+            function* () { return `
+Okay, this is going well.  
 
 Now I will test your ability to find things when they
-are burried a little deeper.
+are burried a little deeper.  
 
 namely, I would like you to look for a property inside
-of an object, and access it.
+of an object, and access it.  
 
 The object I want you to dig into is named "object",
-and the property's name will somehow make it clear that
-it is the one you need to access to pass this level 🤭
-            `,
+and has the following properties: 
+${object.toMarkdown()}
+
+The hope is that by looking at the properties above,
+you will know which property you will need to access
+to pass this level 🤭
+            `; },
             function (solve) {
-                this.object = createRandomObject(
-                    2 + Math.round(Math.random())
-                );
+                gameState.scope.object = createRandomObject(
+                    2 + Math.round(Math.random()),
+                    true, true, false, true, false);
+                Object.defineProperty(this, 'object', {
+                    configurable: true,
+                    enumerable: false,
+                    writable: true,
+                    value: gameState.scope.object,
+                });
+                
                 createAccessIdentifier(
                     solve, this.object, 'accessMe');
                 return () => { delete this.object; };
@@ -530,47 +709,89 @@ it is the one you need to access to pass this level 🤭
         ],
     ]
 
+    const finishLevel = [
+        function* () { return `
+Amazing, you have finished all the levels for now...  
+        
+Orwa is incredibly impressed by you!!!  
+        `; },
+        function (solve) {
+            return () => {};
+        }
+    ]
+
+    function generateLevelTitle() {
+        return gameState.level < levelData.length ?
+            `Level ${gameState.level + 1}` :
+            'You rock 🚀';
+    }
+
+    function getLevelFunction() {
+        const data =
+            gameState.level > -1 &&
+            gameState.level < levelData.length ?
+            levelData[gameState.level] : finishLevel;
+        return data[data.length - 1];
+    }
+    
+    function getLevelData() {
+        return (
+            gameState.level > -1 &&
+            gameState.level < levelData.length ?
+            levelData[gameState.level] : finishLevel)
+            .filter(f => f.constructor.name === 'GeneratorFunction')
+            .map(f => f.apply(gameState.scope).next().value)
+    }
+    
+    function getLevelExtendedData() {
+        return [
+            generateLevelTitle(gameState.level),
+            ...getLevelData(gameState.level),
+        ];
+    }
+
+    function loadLevelRuntime() {
+        unloadLevelRuntime();
+        gameState.scope = {};
+
+        const levelFunction = getLevelFunction();
+        if (typeof levelFunction !== 'function')
+            throw new Error("ERROR invalid level setup function");
+
+        gameState.cleanup = levelFunction(solve);
+        if (typeof gameState.cleanup !== 'function')
+            throw new Error("ERROR invalid level cleanup function");
+
+        gameState.started = true;
+    }
+
+    function unloadLevelRuntime() {
+        gameState.scope = {};
+        if (gameState.started === true)
+            gameState.cleanup();
+    }
     
     function refresh() {
-        const data = 
-            gameState.level < levelData.length ?
-            [
-                `Level ${gameState.level + 1}`,
-                ...levelData[gameState.level]
-            ] : [
-                'You rock 🚀',
-                `
-Amazing, you have finished all the levels for now...
+        loadLevelRuntime();
 
-Orwa is incredibly impressed by you!!!
-                `,
-            function (solve) {
-                return () => {};
-            }
-    
-        ];
+        if (typeof gameState.scope !== 'object')
+            throw new Error("ERROR level loaded without a scope.");
 
+        const data = getLevelExtendedData();
+        
         const nodeLevel = gameState.templateLevel.content.cloneNode(true);
         const nodeFields = nodeLevel.querySelectorAll('#field');
-        const funcLevel = data[data.length - 1];
-        
+
         for (let [index, node] of Object.entries(nodeFields)) {
-            node.innerText = data[index];
+            if (typeof data[index] === 'string' ||
+                data[index] instanceof String)
+                node.innerHTML = markdownConverter.makeHtml(data[index]);
+            else
+                break;
         }
     
         gameState.nodeApp.textContent = '';
         gameState.nodeApp.append(nodeLevel);
-
-        if (typeof gameState.cleanup === 'function')
-            gameState.cleanup();
-        else if (gameState.started === true)
-            console.error('ERROR: Invalid level cleanup function.')
-
-        if (typeof funcLevel === 'function') {
-            gameState.started = true;
-            gameState.cleanup = funcLevel(solve);
-        } else
-            console.error('ERROR: Invalid level setup function.')
 
         console.clear();
         console.info(`%cWelcome to ${data[0]}`,
@@ -592,8 +813,8 @@ Orwa is incredibly impressed by you!!!
         showTransition();
     
         // Increment level number and refresh view in a few seconds.
-        localStorage.setItem('level', ++gameState.level)
-        setTimeout(refresh, gameState.transitionTime);
+        // localStorage.setItem('level', ++gameState.level)
+        // setTimeout(refresh, gameState.transitionTime);
     }
 
     function prevLevel() {
@@ -604,6 +825,14 @@ Orwa is incredibly impressed by you!!!
     function nextLevel() {
         localStorage.setItem('level', ++gameState.level)
         refresh();
+    }
+
+    function nextLevelStep() {
+        const nodeStep = gameState.nodeApp.querySelector('.hidden');
+        if (nodeStep?.classList?.remove)
+            nodeStep.classList.remove('hidden');
+        else
+            console.warn('Next step requested but there are no more in the level');
     }
     
     function init() {
@@ -623,7 +852,7 @@ Orwa is incredibly impressed by you!!!
             let storedLevel = localStorage.getItem('level');
             if (typeof storedLevel === 'string' &&
                 /^[0-9]+$/.test(storedLevel))
-                gameState.level = parseInt(storedLevel);
+                    gameState.level = parseInt(storedLevel);
         }
         
         gameState.level = gameState.level ?? 0;
@@ -642,6 +871,8 @@ Orwa is incredibly impressed by you!!!
             .addEventListener('click', nextLevel);
         document.querySelector('#prevLevel')
             .addEventListener('click', prevLevel);
+        document.querySelector('#remix')
+            .addEventListener('click', refresh);
 
         refresh();
     }

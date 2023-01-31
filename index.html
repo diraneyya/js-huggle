@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js" defer></script>
     <script src="index.js" defer></script>
     <style>
         .consoleTitle {
@@ -14,22 +15,43 @@
             text-decoration: underline dotted;
             text-decoration-color: palevioletred;
         }
+        footer {
+            margin-top: 2em;
+        }
+        h1#field + p {
+            margin-bottom: 0;
+        }
+        .step {
+            margin: 0;
+            transform: scaleY(1);
+            transition: all 0.5s linear;
+        }
+        .step.hidden {
+            transform: scaleY(0);
+            overflow: hidden;
+        }
     </style>
 </head>
 <body>
     <template id="level">
         <h1 id="field"></h1>
-        <p id="field"></p>
+        <div id="field"></div>
+        <div class="step hidden" id="field"></div>
+        <div class="step hidden" id="field"></div>
+        <div class="step hidden" id="field"></div>
     </template>
     <template id="transition">
         <h1>Wow! You did it! 💪</h1>
-        <p>Very good. You have managed to do this one.</p>
-        <p>Let's go to the next!</p>
+        <div>
+            <p>Very good. You have managed to do this one.</p>
+            <p>Let's go to the next!</p>
+        </div>
     </template>
 
     <div id="application"></div>
     <footer>
         <button id="prevLevel">Previous</button>
+        <button id="remix">Remix</button>
         <button id="nextLevel">Next</button>
     </footer>
 </html>
