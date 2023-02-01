@@ -19,7 +19,20 @@ Object.prototype.toMarkdown = function (hint) {
 
 (() => {
     const markdownConverter = new showdown.Converter()
-    const skills = localStorage.getItem('skills') ?? {};
+
+    function retrieveSkills() {
+        let storedSkills = localStorage.getItem('skills');
+        if (storedSkills) {
+            if (typeof (storedSkills = JSON.parse(storedSkills)) !== 'object')
+                console.warn("Error reading skills from local storage.");
+            else
+                return storedSkills;
+        }
+
+        return {};
+    }
+
+    const skills = retrieveSkills();
 
     function parseURL(url) {
         const options = {};
@@ -458,9 +471,26 @@ Object.prototype.toMarkdown = function (hint) {
     }
 
     function retrieveCallStack() {
-        return Array.from((new Error().stack)
-            .matchAll(/^[ \t]+at[ \t]+([^ :]+)/mg))
-            .map(match => match[1]).slice(1);
+        const errorText = new Error().stack;
+        
+        const matchFFCallStack = stack =>
+            [...stack.matchAll(/^([^@]*)@.*$/gm)];
+        const isFFCallStack = stack => 
+            matchFFCallStack(stack).length === stack.trim().split('\n').length;
+        const retrieveFFCallStack = stack =>
+            matchFFCallStack(stack).map(m => m[1].replace(/\(.*$/,''));
+        const retrieveChromeCallStack = stack =>
+            [...stack.matchAll(/^[ \t]+at[ \t]+([^ :]+)/mg)]
+            .map(m => m[1]);
+        const fastforwardStack = stackArray =>
+            stackArray.slice(1 + stackArray
+                .findIndex(e => e === 'retrieveCallStack'));
+
+        return fastforwardStack(
+            isFFCallStack(errorText) ?
+            retrieveFFCallStack(errorText) :
+            retrieveChromeCallStack(errorText)
+        );
     }
 
     function messageHelper(callstack) {
@@ -809,9 +839,15 @@ Orwa is incredibly impressed by you!!!
         );
     }
     
-    function solve() {
+    function updateSkills() {
+        localStorage.setItem('skills',
+            JSON.stringify(skills));
+    }
+
+    function solve(acquiredSkills = {}) {
         showTransition();
-    
+        updateSkills();
+
         // Increment level number and refresh view in a few seconds.
         // localStorage.setItem('level', ++gameState.level)
         // setTimeout(refresh, gameState.transitionTime);
